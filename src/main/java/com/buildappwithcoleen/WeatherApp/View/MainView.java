@@ -33,6 +33,8 @@ public class MainView extends VerticalLayout {
 
     private TextField cityTextField;
 
+    private Label currentLocationTitle;
+
     private Button showWeather;
 
     public MainView(WeatherService weatherService) throws JSONException {
@@ -41,7 +43,17 @@ public class MainView extends VerticalLayout {
         setHeader();
         setLogo();
         setUpForm();
+        dashBoardTitle();
 
+    }
+
+    private void dashBoardTitle() {
+        HorizontalLayout dashBoardMain = new HorizontalLayout();
+        dashBoardMain.setAlignItems(Alignment.CENTER);
+        currentLocationTitle = new Label("Currently in Sandton");
+        currentLocationTitle.getStyle().set("font-weight", "bold");
+        dashBoardMain.add(currentLocationTitle);
+        mainLayout.add(dashBoardMain);
     }
 
     private void setUpForm() {
@@ -64,6 +76,7 @@ public class MainView extends VerticalLayout {
         formLayOut.add(cityTextField);
         formLayOut.add(showWeather);
         mainLayout.add(formLayOut);
+
 
     }
 
