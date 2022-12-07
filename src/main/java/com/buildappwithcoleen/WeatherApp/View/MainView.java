@@ -37,6 +37,8 @@ public class MainView extends VerticalLayout {
 
     private Button showWeather;
 
+    private Label currentTemp;
+
     public MainView(WeatherService weatherService) throws JSONException {
         this.weatherService = weatherService;
         setLayOut();
@@ -49,11 +51,19 @@ public class MainView extends VerticalLayout {
 
     private void dashBoardTitle() {
         HorizontalLayout dashBoardMain = new HorizontalLayout();
+        Image image =new Image();
+        image.setSrc("https://openweathermap.org/img/wn/01d@2x.png");
         dashBoardMain.setAlignItems(Alignment.CENTER);
         currentLocationTitle = new Label("Currently in Sandton");
-        currentLocationTitle.getStyle().set("font-weight", "bold");
+        currentTemp = new Label("19F");
+        currentTemp.getStyle().set("font-size", "45px");
+        currentTemp.getStyle().set("font-weight", "bold");
+        currentLocationTitle.getStyle().set("font-size", "25px");
         dashBoardMain.add(currentLocationTitle);
+        dashBoardMain.add(image);
+        dashBoardMain.add(currentTemp);
         mainLayout.add(dashBoardMain);
+
     }
 
     private void setUpForm() {
@@ -96,8 +106,8 @@ public class MainView extends VerticalLayout {
     private void setHeader() {
         HorizontalLayout hLayout = new HorizontalLayout();
         hLayout.setAlignItems(Alignment.CENTER);
-        H1 title = new H1("WEATHER");
-
+        Label title = new Label("WEATHER!");
+        title.getStyle().set("font-size", "35px");
         hLayout.add(title);
 
 
@@ -118,15 +128,3 @@ public class MainView extends VerticalLayout {
 }
 
 
-//    JSONArray jsonArray = weatherService.returnWeatherArray("sandton");
-//    JSONObject obj = weatherService.getSunSetObject("sandton");
-//        System.out.println("type"+obj.getInt("type"));
-//
-//                for (int i =0 ; i < jsonArray.length(); i++){
-//        JSONObject jsonObject = jsonArray.getJSONObject(i);
-//        System.out.println("id :"+jsonObject.getInt("id")+" main "+ jsonObject.getString("main")+
-//        " description: "+ jsonObject.getString("description"));
-//        }
-//
-//        Label label = new Label("Hello World");
-//        add(label);
