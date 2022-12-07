@@ -39,6 +39,15 @@ public class MainView extends VerticalLayout {
 
     private Label currentTemp;
 
+    private Label weatherDescription;
+    private Label weatherMin;
+    private Label weatherMax;
+    private Label pressureLabel;
+    private Label HumidityLabel;
+    private Label windSpeedLabel;
+    private Label sunRiseLabel;
+    private Label sunSetLabel;
+
     public MainView(WeatherService weatherService) throws JSONException {
         this.weatherService = weatherService;
         setLayOut();
@@ -46,13 +55,67 @@ public class MainView extends VerticalLayout {
         setLogo();
         setUpForm();
         dashBoardTitle();
+        dashBoardDescription();
+        showWeather.addClickListener( buttonClickEvent -> {
+            if(!cityTextField.getValue().equals("")){
+                 updateUI();
+            }
+
+        });
+
+
+    }
+
+    private void updateUI() {
+    }
+
+    private void dashBoardDescription() {
+        HorizontalLayout mainDescriptionLayout = new HorizontalLayout();
+        mainDescriptionLayout.setAlignItems(Alignment.CENTER);
+        VerticalLayout descriptionLayout = new VerticalLayout();
+        descriptionLayout.setAlignItems(Alignment.AUTO);
+        weatherDescription = new Label("Clear Skies");
+        descriptionLayout.add(weatherDescription);
+
+        weatherMin = new Label("Min : 56F");
+        descriptionLayout.add(weatherMin);
+
+        weatherMax = new Label("Clear Max : 86F");
+        descriptionLayout.add(weatherMax);
+        mainDescriptionLayout.add(descriptionLayout);
+
+        mainLayout.add(mainDescriptionLayout);
+
+        VerticalLayout pressureLayout = new VerticalLayout();
+        pressureLayout.setAlignItems(Alignment.AUTO);
+
+        pressureLabel = new Label("Pressure : 123pa");
+        pressureLayout.add(pressureLabel);
+
+        HumidityLabel = new Label("Humidity : 34");
+        pressureLayout.add(HumidityLabel);
+
+        windSpeedLabel = new Label("Wind Speed: 124/hr");
+        pressureLayout.add(windSpeedLabel);
+
+        sunRiseLabel = new Label("Sunrise");
+        pressureLayout.add(sunRiseLabel);
+
+        sunSetLabel = new Label("Sunset");
+        pressureLayout.add(sunSetLabel);
+
+        mainDescriptionLayout.add(pressureLayout);
+
+        mainLayout.add(mainDescriptionLayout);
+
+
 
     }
 
     private void dashBoardTitle() {
         HorizontalLayout dashBoardMain = new HorizontalLayout();
         Image image =new Image();
-        image.setSrc("https://openweathermap.org/img/wn/01d@2x.png");
+        image.setSrc("https://openweathermap.org/img/wn/04d@2x.png");
         dashBoardMain.setAlignItems(Alignment.CENTER);
         currentLocationTitle = new Label("Currently in Sandton");
         currentTemp = new Label("19F");
