@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -16,8 +17,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 
 import com.vaadin.flow.server.StreamResource;
+import org.json.JSONArray;
 import org.json.JSONException;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 
@@ -47,6 +50,10 @@ public class MainView extends VerticalLayout {
     private Label windSpeedLabel;
     private Label sunRiseLabel;
     private Label sunSetLabel;
+    private Image image;
+    private HorizontalLayout dashBoardMain;
+    private VerticalLayout descriptionLayout;
+    private HorizontalLayout mainDescriptionLayout;
 
     public MainView(WeatherService weatherService) throws JSONException {
         this.weatherService = weatherService;
@@ -59,6 +66,10 @@ public class MainView extends VerticalLayout {
         showWeather.addClickListener( buttonClickEvent -> {
             if(!cityTextField.getValue().equals("")){
                  updateUI();
+            }else{
+                Notification notification = Notification.show("please Enter the City!");
+                mainLayout.add(notification);
+
             }
 
         });
@@ -66,13 +77,12 @@ public class MainView extends VerticalLayout {
 
     }
 
-    private void updateUI() {
-    }
+
 
     private void dashBoardDescription() {
-        HorizontalLayout mainDescriptionLayout = new HorizontalLayout();
+        mainDescriptionLayout = new HorizontalLayout();
         mainDescriptionLayout.setAlignItems(Alignment.CENTER);
-        VerticalLayout descriptionLayout = new VerticalLayout();
+        descriptionLayout = new VerticalLayout();
         descriptionLayout.setAlignItems(Alignment.AUTO);
         weatherDescription = new Label("Clear Skies");
         descriptionLayout.add(weatherDescription);
@@ -82,9 +92,7 @@ public class MainView extends VerticalLayout {
 
         weatherMax = new Label("Clear Max : 86F");
         descriptionLayout.add(weatherMax);
-        mainDescriptionLayout.add(descriptionLayout);
 
-        mainLayout.add(mainDescriptionLayout);
 
         VerticalLayout pressureLayout = new VerticalLayout();
         pressureLayout.setAlignItems(Alignment.AUTO);
@@ -103,28 +111,56 @@ public class MainView extends VerticalLayout {
 
         sunSetLabel = new Label("Sunset");
         pressureLayout.add(sunSetLabel);
+        
+    }
+    private void updateUI() {
+        String city = cityTextField.getValue();
+        currentLocationTitle.setText("Currently in "+city);
+        JSONObject jsonObject = weatherService.getMainObject(city);
+        try {
+            double temp = jsonObject.getDouble("temp") ;
+            currentTemp.setText(temp+" C");
+            JSONArray jsonArray = weatherService.returnWeatherArray(city);
+            String iconCode = null;
+            String description="";
+            for (int i = 0; i < jsonArray.length();i++){
+                JSONObject jObj = jsonArray.getJSONObject(i);
+                iconCode = jObj.getString("icon");
+                description = jObj.getString("description");
 
-        mainDescriptionLayout.add(pressureLayout);
+            }
 
-        mainLayout.add(mainDescriptionLayout);
+            weatherDescription.setText("Weather Description: "+description);
+            image.setSrc("https://openweathermap.org/img/wn/"+iconCode+"@2x.png");
+            mainDescriptionLayout.add(descriptionLayout);
 
+            mainLayout.add(mainDescriptionLayout);
+            dashBoardMain.add(currentLocationTitle,image,currentTemp);
 
+            showdescription();
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private void showdescription(){
 
     }
 
     private void dashBoardTitle() {
-        HorizontalLayout dashBoardMain = new HorizontalLayout();
-        Image image =new Image();
-        image.setSrc("https://openweathermap.org/img/wn/04d@2x.png");
+         dashBoardMain = new HorizontalLayout();
+         image =new Image();
         dashBoardMain.setAlignItems(Alignment.CENTER);
         currentLocationTitle = new Label("Currently in Sandton");
         currentTemp = new Label("19F");
         currentTemp.getStyle().set("font-size", "45px");
         currentTemp.getStyle().set("font-weight", "bold");
         currentLocationTitle.getStyle().set("font-size", "25px");
-        dashBoardMain.add(currentLocationTitle);
-        dashBoardMain.add(image);
-        dashBoardMain.add(currentTemp);
+       // dashBoardMain.add(currentLocationTitle);
+       // dashBoardMain.add(image);
+       // dashBoardMain.add(currentTemp);
         mainLayout.add(dashBoardMain);
 
     }

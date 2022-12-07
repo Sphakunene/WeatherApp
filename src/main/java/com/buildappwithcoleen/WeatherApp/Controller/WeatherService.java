@@ -18,7 +18,7 @@ public class WeatherService {
     public JSONObject getWeather(String name) throws IOException {
         client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("https://api.openweathermap.org/data/2.5/weather?q="+name+"&appid=ad32e01c3300a131bc7e1bd30ad7612d")
+                .url("https://api.openweathermap.org/data/2.5/weather?q="+name+"&units=metric&appid=ad32e01c3300a131bc7e1bd30ad7612d")
                 .build();
         response = client.newCall(request).execute();
         try {
