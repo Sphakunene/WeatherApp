@@ -54,6 +54,7 @@ public class MainView extends VerticalLayout {
     private HorizontalLayout dashBoardMain;
     private VerticalLayout descriptionLayout;
     private HorizontalLayout mainDescriptionLayout;
+    private VerticalLayout pressureLayout;
 
     public MainView(WeatherService weatherService) throws JSONException {
         this.weatherService = weatherService;
@@ -94,7 +95,7 @@ public class MainView extends VerticalLayout {
         descriptionLayout.add(weatherMax);
 
 
-        VerticalLayout pressureLayout = new VerticalLayout();
+        pressureLayout = new VerticalLayout();
         pressureLayout.setAlignItems(Alignment.AUTO);
 
         pressureLabel = new Label("Pressure : 123pa");
@@ -120,6 +121,14 @@ public class MainView extends VerticalLayout {
         try {
             double temp = jsonObject.getDouble("temp") ;
             currentTemp.setText(temp+" C");
+
+            JSONObject mainObject = weatherService.getMainObject(city);
+            double minTemp = mainObject.getDouble("temp_min");
+            double maxTemp = mainObject.getDouble("temp_max");
+            int pressure = mainObject.getInt("pressure");
+            int humidity = mainObject.getInt("humidity");
+            System.out.println(humidity);
+
             JSONArray jsonArray = weatherService.returnWeatherArray(city);
             String iconCode = null;
             String description="";
@@ -130,9 +139,15 @@ public class MainView extends VerticalLayout {
 
             }
 
-            weatherDescription.setText("Weather Description: "+description);
+            weatherDescription.setText("Cloudiness: "+description);
+            weatherMin.setText("Min :"+ String.valueOf(minTemp));
+            weatherMax.setText("Max :"+ String.valueOf(maxTemp));
+            pressureLabel.setText("Pressure :"+ String.valueOf(pressure));
+            HumidityLabel.setText("Humidity :"+ String.valueOf(humidity));
+
             image.setSrc("https://openweathermap.org/img/wn/"+iconCode+"@2x.png");
             mainDescriptionLayout.add(descriptionLayout);
+            mainDescriptionLayout.add(pressureLayout);
 
             mainLayout.add(mainDescriptionLayout);
             dashBoardMain.add(currentLocationTitle,image,currentTemp);
