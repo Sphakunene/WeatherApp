@@ -15,22 +15,28 @@ public class WeatherService {
     private OkHttpClient client;
     private Response response;
 
-    public JSONObject getWeather(String name) throws IOException {
+    private String cityName;
+
+    private  String unit;
+
+
+    public JSONObject getWeather() throws IOException {
         client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("https://api.openweathermap.org/data/2.5/weather?q="+name+"&units=metric&appid=ad32e01c3300a131bc7e1bd30ad7612d")
+                .url("https://api.openweathermap.org/data/2.5/weather?q="+getCityName()+"&units="+getUnit()+"&appid=ad32e01c3300a131bc7e1bd30ad7612d")
                 .build();
         response = client.newCall(request).execute();
         try {
+
             return new JSONObject(response.body().string());
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
 
     }
-    public JSONArray returnWeatherArray(String name){
+    public JSONArray returnWeatherArray(){
         try {
-            JSONArray jsonArray = this.getWeather(name).getJSONArray("weather");
+            JSONArray jsonArray = this.getWeather().getJSONArray("weather");
             return jsonArray;
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -40,10 +46,10 @@ public class WeatherService {
 
     }
 
-    public JSONObject getMainObject(String name){
+    public JSONObject getMainObject(){
 
         try {
-            JSONObject jsonObject = this.getWeather(name).getJSONObject("main");
+            JSONObject jsonObject = this.getWeather().getJSONObject("main");
             return jsonObject;
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -52,10 +58,10 @@ public class WeatherService {
         }
 
     }
-    public JSONObject getWindObject(String name){
+    public JSONObject getWindObject(){
 
         try {
-            JSONObject jsonObject = this.getWeather(name).getJSONObject("wind");
+            JSONObject jsonObject = this.getWeather().getJSONObject("wind");
             return jsonObject;
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -64,10 +70,10 @@ public class WeatherService {
         }
 
     }
-    public JSONObject getSunSetObject(String name){
+    public JSONObject getSunSetObject(){
 
         try {
-            JSONObject jsonObject = this.getWeather(name).getJSONObject("sys");
+            JSONObject jsonObject = this.getWeather().getJSONObject("sys");
             return jsonObject;
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -75,5 +81,21 @@ public class WeatherService {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 }

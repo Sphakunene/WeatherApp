@@ -2,9 +2,8 @@ package com.buildappwithcoleen.WeatherApp.View;
 
 import com.buildappwithcoleen.WeatherApp.Controller.WeatherService;
 
-import com.vaadin.flow.component.Tag;
+
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -22,15 +21,17 @@ import org.json.JSONException;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 @Route("")
 public class MainView extends VerticalLayout {
     @Autowired
-    private WeatherService weatherService;
+    private final WeatherService weatherService;
     private VerticalLayout mainLayout;
     private Select<String> unit;
 
@@ -56,7 +57,7 @@ public class MainView extends VerticalLayout {
     private HorizontalLayout mainDescriptionLayout;
     private VerticalLayout pressureLayout;
 
-    public MainView(WeatherService weatherService) throws JSONException {
+    public MainView(WeatherService weatherService) {
         this.weatherService = weatherService;
         setLayOut();
         setHeader();
@@ -116,20 +117,45 @@ public class MainView extends VerticalLayout {
     }
     private void updateUI() {
         String city = cityTextField.getValue();
+        String unit1;
+        String defaultUnit;
+
+        if (unit.getValue().equals("F")){
+            defaultUnit = "imperial";
+            unit1 = " "+"\u00b0"+ "F";
+        }else{
+            defaultUnit = "metric";
+            unit1 =" "+ "\u00b0"+ "C";
+        }
+        System.out.println("selected value "+ unit.getValue());
+        System.out.println(unit);
+        weatherService.setUnit(defaultUnit);
+        weatherService.setCityName(city);
+
         currentLocationTitle.setText("Currently in "+city);
-        JSONObject jsonObject = weatherService.getMainObject(city);
+        JSONObject jsonObject = weatherService.getMainObject();
         try {
             double temp = jsonObject.getDouble("temp") ;
-            currentTemp.setText(temp+" C");
+            currentTemp.setText(temp+unit1);
 
-            JSONObject mainObject = weatherService.getMainObject(city);
+            JSONObject mainObject = weatherService.getMainObject();
             double minTemp = mainObject.getDouble("temp_min");
             double maxTemp = mainObject.getDouble("temp_max");
             int pressure = mainObject.getInt("pressure");
             int humidity = mainObject.getInt("humidity");
-            System.out.println(humidity);
 
-            JSONArray jsonArray = weatherService.returnWeatherArray(city);
+            JSONObject windObject = weatherService.getWindObject();
+            double wind = windObject.getDouble("speed");
+
+            JSONObject systemObject = weatherService.getSunSetObject();
+            long sunRise = systemObject.getLong("sunrise")*1000;
+            long sunSet = systemObject.getLong("sunset")*1000;
+
+            sunRiseLabel.setText("Sunrise : "+ convertTime(sunRise));
+            sunSetLabel.setText("Sunset : "+ convertTime(sunSet));
+
+
+            JSONArray jsonArray = weatherService.returnWeatherArray();
             String iconCode = null;
             String description="";
             for (int i = 0; i < jsonArray.length();i++){
@@ -142,8 +168,10 @@ public class MainView extends VerticalLayout {
             weatherDescription.setText("Cloudiness: "+description);
             weatherMin.setText("Min :"+ String.valueOf(minTemp));
             weatherMax.setText("Max :"+ String.valueOf(maxTemp));
-            pressureLabel.setText("Pressure :"+ String.valueOf(pressure));
-            HumidityLabel.setText("Humidity :"+ String.valueOf(humidity));
+            pressureLabel.setText("Pressure :"+ String.valueOf(pressure)+" hpa");
+            HumidityLabel.setText("Humidity :"+ String.valueOf(humidity)+" %");
+            windSpeedLabel.setText("Wind : "+ String.valueOf(wind)+" m/s");
+
 
             image.setSrc("https://openweathermap.org/img/wn/"+iconCode+"@2x.png");
             mainDescriptionLayout.add(descriptionLayout);
@@ -152,7 +180,7 @@ public class MainView extends VerticalLayout {
             mainLayout.add(mainDescriptionLayout);
             dashBoardMain.add(currentLocationTitle,image,currentTemp);
 
-            showdescription();
+
 
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -160,9 +188,7 @@ public class MainView extends VerticalLayout {
 
     }
 
-    private void showdescription(){
 
-    }
 
     private void dashBoardTitle() {
          dashBoardMain = new HorizontalLayout();
@@ -173,9 +199,6 @@ public class MainView extends VerticalLayout {
         currentTemp.getStyle().set("font-size", "45px");
         currentTemp.getStyle().set("font-weight", "bold");
         currentLocationTitle.getStyle().set("font-size", "25px");
-       // dashBoardMain.add(currentLocationTitle);
-       // dashBoardMain.add(image);
-       // dashBoardMain.add(currentTemp);
         mainLayout.add(dashBoardMain);
 
     }
@@ -190,10 +213,11 @@ public class MainView extends VerticalLayout {
         ArrayList<String> items = new ArrayList<>();
         items.add("C");
         items.add("F");
-        unit.setValue(items.get(0));
+
         showWeather = new Button(new Icon(VaadinIcon.SEARCH));
 
         unit.setItems(items);
+        unit.setValue(items.get(0));
         cityTextField = new TextField();
         cityTextField.setWidth("80%");
         formLayOut.add(unit);
@@ -238,6 +262,11 @@ public class MainView extends VerticalLayout {
         mainLayout.setAlignItems(Alignment.CENTER);
         this.add(mainLayout);
 
+    }
+
+    private String convertTime(long time){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy hh.mm aa");
+        return dateFormat.format(new Date(time));
     }
 }
 
